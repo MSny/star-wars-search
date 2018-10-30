@@ -35,9 +35,7 @@ class App extends React.Component {
 
   getMovieInfo(data){
     let movieArray = [];
-    console.log("data", data);
     let films = data.films;
-    console.log("films", films);
     films.forEach(movie => {
       axios.get(movie)
       .then(response => movieArray.push(response.data))
@@ -45,7 +43,6 @@ class App extends React.Component {
         console.log(error.response)
     });
     });
-    console.log("movieArray ",movieArray);
     this.setState({movieInfo: data, filmInfo: movieArray, error: false});
   }
 
@@ -139,7 +136,6 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value, showCard: true });
     this.getCharacterMovies(event.target.value);
 
-    console.log("state ",this.state);
   };
   
   getCharacterMovies(url){
@@ -147,17 +143,13 @@ class App extends React.Component {
     .then(response => this.getMovieInfo(response.data))
     .catch(error => {
       this.setState({error: true})
-      console.log(error.response)
     });;
-    console.log(this.state.movieInfo);
   }
 
   
   render() {
-    console.log(this.state.characters);
     let data = this.state.characters;
     const {showCard} = this.state;
-    console.log("data ", data)
     let characterList;
     if (data.length > 1){
       characterList = (

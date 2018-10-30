@@ -4,7 +4,7 @@ Live url = https://star-wars-movie-search.herokuapp.com/
 
 Usage: Clone repo and install node modules with 'npm install'
 
-Star App: Use command 'npm start'
+Start App: Use command 'npm start'
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
