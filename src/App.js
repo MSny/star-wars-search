@@ -9,70 +9,22 @@ import {
   MenuItem,
   Grid,
   Input,
-  Button,
   Card,
   CardActions,
   CardContent,
   CardActionArea,
-  CardMedia,
   Collapse,
   IconButton
 } from '@material-ui/core';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-// import { withStyles } from '@material-ui/core/styles';
-
-const styles = theme => ({
-  root: {
-    flexGrow: 1,
-    maxWidth: 600,
-    padding: theme.spacing.unit * 2,
-  },
-  starText:{
-    fontFamily: 'STARWARS'
-  }
-});
-
-// function MediaCard(props) {
-//   if(props.filmInfo.length > 1){
-//   return (
-//     <Card >
-//       <CardActionArea>
-//         <CardMedia
-//           image="/static/images/cards/contemplative-reptile.jpg"
-//           title="Contemplative Reptile"
-//         />
-//         <CardContent>
-//           <Typography gutterBottom variant="h5" component="h2">
-//             Lizard
-//           </Typography>
-//           <Typography component="p">
-//             Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-//             across all continents except Antarctica
-//           </Typography>
-//         </CardContent>
-//       </CardActionArea>
-//       <CardActions>
-//         <Button size="small" color="primary">
-//           Share
-//         </Button>
-//         <Button size="small" color="primary">
-//           Learn More
-//         </Button>
-//       </CardActions>
-//     </Card>
-//   )
-//   }
-//   else return(<div></div>)
-// }
-
 class App extends React.Component {
   constructor() {
     super();
     this.state = { 
       characters: [],
-      error: null,
+      error: false,
       selectedCharacter: '',
       movieInfo: {},
       filmInfo: [], 
@@ -87,15 +39,26 @@ class App extends React.Component {
     let films = data.films;
     console.log("films", films);
     films.forEach(movie => {
-      axios.get(movie).then(response => movieArray.push(response.data))
+      axios.get(movie)
+      .then(response => movieArray.push(response.data))
+      .catch(error => {
+        console.log(error.response)
+    });
     });
     console.log("movieArray ",movieArray);
-    this.setState({movieInfo: data, filmInfo: movieArray});
+    this.setState({movieInfo: data, filmInfo: movieArray, error: false});
   }
 
   handleExpandClick = () => {
     this.setState(state => ({ expanded: !state.expanded }));
   };
+
+  convertDate = (date) =>{
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const now = new Date(date);
+    return(days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ', ' + now.getFullYear());
+  }
 
   async componentDidMount() {
    
@@ -105,6 +68,21 @@ class App extends React.Component {
 
   mediaCard(props) {
     const filmInfo = props.filmInfo;
+    const error = props.error;
+    if (error){
+      return(
+        <Card >
+        <CardActionArea>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="h2">
+            Error retrieving character information, please select a different character
+            </Typography>
+            </CardContent>
+            </CardActionArea>
+            </Card>
+      )
+    }
+    else {
     return (
       <Card >
         <CardActionArea>
@@ -145,7 +123,7 @@ class App extends React.Component {
             <b>Summary</b>: {film.opening_crawl}
           </Typography>
           <Typography paragraph>
-            <b>Released</b>: {film.release_date} | <b>Directed By</b>: {film.director}
+            <b>Released</b>: {this.convertDate(film.release_date)} | <b>Directed By</b>: {film.director}
           </Typography>
         </CardContent>
         ))}
@@ -153,6 +131,7 @@ class App extends React.Component {
         </Collapse>
       </Card>
     )
+        }
   }
 
 
@@ -164,7 +143,12 @@ class App extends React.Component {
   };
   
   getCharacterMovies(url){
-    axios.get(url).then(response => this.getMovieInfo(response.data));
+    axios.get(url)
+    .then(response => this.getMovieInfo(response.data))
+    .catch(error => {
+      this.setState({error: true})
+      console.log(error.response)
+    });;
     console.log(this.state.movieInfo);
   }
 
